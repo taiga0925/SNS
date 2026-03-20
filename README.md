@@ -64,6 +64,7 @@ npm run dev
 
 データベース設計（ER図）
 以下の構成でデータベースを構築しています。
+<img width="591" height="691" alt="ER drawio" src="https://github.com/user-attachments/assets/1075ba0d-f5c4-462c-9ff8-56d769633ef5" />
 
 ・users: ユーザー情報
 
