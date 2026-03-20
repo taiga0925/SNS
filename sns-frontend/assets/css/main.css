@@ -1,0 +1,21 @@
+/* assets/css/main.css */
+
+/* html と body タグのマージンとパディングを完全にゼロにし、
+   画面全体をダーク背景で埋め尽くします */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* 高さを100%にして、背景が途切れないようにする */
+  background-color: #131821;
+  /* 全体の背景色 */
+  overflow-x: hidden;
+  /* 横スクロールバーの発生を防ぐ */
+}
+
+/* Nuxt.jsのルート要素にも高さを指定（背景を全画面にするため） */
+#__nuxt,
+#__layout {
+  height: 100%;
+}
