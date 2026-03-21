@@ -83,16 +83,16 @@ export default {
       errorMessage: ''       // バリデーションエラーメッセージを入れる箱
     }
   },
-  // 画面が表示された時に実行
+  // 画面が表示された時（マウント時）に実行
   async mounted() {
-    // ローカルストレージからユーザーIDをNumber型として取得
+    // ローカルストレージからユーザーIDをNumber型として取得（バグ防止）
     this.currentUserId = Number(localStorage.getItem('user_id'))
     // APIから投稿データを取得
     await this.fetchPost()
   },
   methods: {
     // --- データ取得 ---
-    // APIから投稿（およびコメント、いいね、ユーザー情報）を取得
+    // APIから単一の投稿（およびコメント、いいね、ユーザー情報）を取得
     async fetchPost() {
       try {
         const postId = this.$route.params.id
@@ -105,7 +105,7 @@ export default {
     },
 
     // --- いいね機能 ---
-    // いいねの追加/削除を切り替え
+    // いいねの追加/削除を切り替える
     async toggleLike(post) {
       if (!this.currentUserId) {
         alert('ログインが必要です。')
@@ -133,7 +133,7 @@ export default {
     },
 
     // --- 投稿削除機能 ---
-    // 投稿を削除し、ホーム画面にリダイレクト
+    // 投稿を削除し、ホーム画面にリダイレクトする
     async deletePost(postId) {
       if (!confirm('この投稿を削除してもよろしいですか？（コメントもすべて削除されます）')) {
         return
@@ -150,7 +150,7 @@ export default {
     },
 
     // --- コメント機能 ---
-    // 新しいコメントを送信
+    // 新しいコメントを送信する
     async submitComment() {
       // ボタンを押すたびにエラーメッセージをリセット
       this.errorMessage = ''
@@ -199,7 +199,7 @@ export default {
       }
     },
 
-    // コメントを削除
+    // コメントを削除する
     async deleteComment(commentId) {
       if (!confirm('このコメントを削除してもよろしいですか？')) {
         return
@@ -221,6 +221,7 @@ export default {
 <style scoped>
 /* =========================================
    全体のレイアウト
+   （ホーム画面index.vueと同じ Flexbox 構造）
    ========================================= */
 .container {
   display: flex;
@@ -228,14 +229,14 @@ export default {
   min-height: 100vh;
 }
 
-/* サイドナビゲーション */
+/* 左側エリア：サイドナビゲーション（幅280px固定、白い境界線） */
 .left-side {
   width: 280px;
   border-right: 1px solid #fff;
   box-sizing: border-box;
 }
 
-/* メインコンテンツ */
+/* 右側エリア：メインコンテンツ（残りの幅をすべて使う） */
 .main-content {
   flex: 1;
 }
@@ -243,7 +244,7 @@ export default {
 /* =========================================
    共通スタイル（見出し、区切り線）
    ========================================= */
-/* ページタイトル、区切りテキストの線 */
+/* ページタイトル、区切りテキストの下の実線（白） */
 .content-title, .section-divider {
   border-bottom: 1px solid #fff;
 }
@@ -256,7 +257,7 @@ export default {
   margin: 0;
 }
 
-/* コメント一覧の区切り */
+/* コメント一覧の前の区切りテキスト（中央揃え） */
 .section-divider {
   text-align: center;
   font-size: 16px;
@@ -266,33 +267,33 @@ export default {
 /* =========================================
    投稿、コメントアイテムのスタイル
    ========================================= */
-/* 投稿、コメントごとの区切り */
+/* 投稿、コメントごとの下の区切り線（白）と余白 */
 .post-item, .comment-item {
   border-bottom: 1px solid #fff;
   padding: 20px 30px;
 }
 
-/* ヘッダー */
+/* ヘッダー周り（名前とアクションボタン群の横並び配置） */
 .post-header {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
 }
 
-/* ユーザー名 */
+/* ユーザー名（ホーム画面より少し大きく、右側に余白） */
 .user-name {
   font-weight: bold;
   font-size: 16px;
   margin-right: 20px;
 }
 
-/* アクションボタン */
+/* アクションボタン群（いいね、削除アイコンを横並びに） */
 .actions {
   display: flex;
   align-items: center;
 }
 
-/* 各アクションボタン */
+/* 各アクションボタン特有の背景や枠線を消す */
 .actions button {
   background: none;
   border: none;
@@ -305,7 +306,7 @@ export default {
   padding: 0;
 }
 
-/* 各アイコンのスタイル */
+/* 各アイコンのスタイル（ダーク背景用に白く反転） */
 .icon {
   width: 22px;
   height: auto;
@@ -319,7 +320,7 @@ export default {
   font-size: 14px;
 }
 
-/* いいね済みのハート */
+/* いいね済みのハート（赤色に変換するCSSフィルター） */
 .liked {
   filter: invert(27%) sepia(91%) saturate(7456%) hue-rotate(356deg) brightness(101%) contrast(114%);
 }
@@ -333,19 +334,19 @@ export default {
 /* =========================================
    コメント入力エリア
    ========================================= */
-/* 入力エリア全体 */
+/* コメント入力エリア全体の余白 */
 .comment-input-area {
   padding: 20px 30px;
 }
 
-/* コメント入力フォーム */
+/* コメント入力フォーム（入力欄とボタンの横並び） */
 .comment-form {
   display: flex;
   gap: 15px;
   align-items: flex-start;
 }
 
-/* コメント入力欄 */
+/* コメント入力欄（白い枠線、角丸、透明背景、入力文字を白に） */
 .comment-form input {
   flex: 1;
   padding: 12px 15px;
@@ -357,12 +358,12 @@ export default {
   box-sizing: border-box;
 }
 
-/* 入力欄の入力文字 */
+/* 入力欄のプレースホルダーをグレーに */
 .comment-form input::placeholder {
   color: #888;
 }
 
-/* 送信ボタン */
+/* 送信ボタン（サンプルのデザイン：紫色、完全な角丸、太字、横幅自動） */
 .submit-btn {
   background-color: #5c38ff;
   color: white;
@@ -378,7 +379,7 @@ export default {
 /* =========================================
    エラーメッセージ
    ========================================= */
-/* バリデーションエラー用 */
+/* バリデーションエラー用の赤文字スタイル */
 .error-text {
   color: #ff4d4f;
   font-size: 14px;

@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         Comment::factory(30)->create();
 
         // いいねをランダムに40件作成
-        // いいね済みの組み合わせでエラーが出るのを防ぐため try-catch を使用
+        // （※すでにいいね済みの組み合わせでエラーが出るのを防ぐため try-catch を使用）
         for ($i = 0; $i < 40; $i++) {
             try {
                 Like::factory()->create();

@@ -1,7 +1,7 @@
 /* assets/css/main.css */
 
 /* html と body タグのマージンとパディングを完全にゼロにし、
-   画面全体をダーク背景 */
+   画面全体をダーク背景で埋め尽くします */
 html,
 body {
   margin: 0;

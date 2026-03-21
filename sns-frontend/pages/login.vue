@@ -1,9 +1,7 @@
 <template>
   <div>
     <AuthHeader />
-
     <div class="auth-container">
-
       <div class="auth-box">
         <h2>ログイン</h2>
 
@@ -22,77 +20,66 @@
 </template>
 
 <script>
-// Firebaseプラグインとヘッダーコンポーネントの読み込み
 import firebase from '~/plugins/firebase'
 import AuthHeader from '~/components/AuthHeader.vue'
 
 export default {
-  // 使用するコンポーネントの登録
   components: {
     AuthHeader
   },
   data() {
     return {
-      email: '',      // 入力されたメールアドレス
-      password: '',   // 入力されたパスワード
-
-      // バリデーションや通信時の各エラーメッセージを管理
+      email: '',
+      password: '',
+      // 各項目のエラーメッセージを入れる箱
       errors: {
-        email: '',    // メール入力欄の下に出すエラー
-        password: '', // パスワード入力欄の下に出すエラー
-        general: ''   // 認証失敗時など、全体に関わるエラー
+        email: '',
+        password: '',
+        general: ''
       }
     }
   },
   methods: {
-    // --- ログイン処理 ---
     async login() {
-      // 古いエラーメッセージをすべてリセット（初期化）
+      // 1. まず前回の古いエラーメッセージをリセット
       this.errors = { email: '', password: '', general: '' }
-
-      // エラーの有無を判定するためのフラグ
       let hasError = false
 
-      // フロントエンドでの入力チェック（メールアドレスが空欄ではないか）
+      // 2. メールアドレスの必須チェック
       if (!this.email) {
         this.errors.email = 'メールアドレスを入力してください'
         hasError = true
       }
 
-      // フロントエンドでの入力チェック（パスワードが空欄ではないか）
+      // 3. パスワードの必須チェック
       if (!this.password) {
         this.errors.password = 'パスワードを入力してください'
         hasError = true
       }
 
-      // 入力漏れがあれば、ここで処理をストップ（APIの無駄打ち防止）
+      // エラーがあればここで処理をストップ
       if (hasError) return
 
       try {
-        // Firebase Authentication を使ってメールとパスワードでログイン認証
+        // Firebase認証
         await firebase.auth().signInWithEmailAndPassword(this.email, this.password)
 
-        // Firebaseの認証が通ったら、自作のLaravel APIにもログインリクエストを送る
-        // Laravel側でユーザー情報を取得し、セッション等を確立するため
+        // Laravel APIへログインリクエスト
         const response = await this.$axios.post('/login', {
           email: this.email,
           password: this.password
         })
 
-        // Laravelから返ってきたユーザー情報（IDや名前）を取り出す
+        // レスポンスからユーザー情報を取得して保存
         const user = response.data.user
-
-        // ローカルストレージにユーザーIDと名前を保存（他の画面で「自分」を識別するため）
         localStorage.setItem('user_id', user.id)
         localStorage.setItem('user_name', user.name)
 
-        // 認証とデータの保存が完了、ホーム画面へ遷移
-        this.$router.push('/')
+        this.$router.push('/') // トップページへ移動
 
       } catch (error) {
         console.error(error)
-        // Firebaseで「該当ユーザーなし」「パスワード間違い」等になった場合
-        // またはLaravelのAPI通信で失敗した場合に、共通のエラーメッセージを表示
+        // パスワード間違いや、登録されていないメールアドレスの場合のエラー
         this.errors.general = 'メールアドレスまたはパスワードが間違っています。'
       }
     }
@@ -101,87 +88,73 @@ export default {
 </script>
 
 <style scoped>
-/* =========================================
-   全体のレイアウト
-   ========================================= */
-/* 画面全体 */
+/* 全体の背景 */
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* ヘッダーの高さを考慮して画面中央に配置するため min-height を調整 */
   min-height: 100vh;
-  background-color: transparent;
+  background-color: transparent; /* 背景色はグローバルCSS(main.css)に任せるため透明でOK */
   font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* =========================================
-   ログイン入力
-   ========================================= */
-/* メイン */
+/* 認証ボックス (影を消し、余白を調整) */
 .auth-box {
   background: white;
   padding: 50px 40px;
   border-radius: 10px;
   text-align: center;
   width: 400px;
-  box-shadow: none;
+  box-shadow: none; /* 目標デザインに合わせて影を削除 */
 }
 
-/* タイトル */
 .auth-box h2 {
   font-weight: bold;
   margin-bottom: 30px;
 }
 
-/* =========================================
-   入力フィールド・ボタン
-   ========================================= */
-/* メール・パスワード入力欄 */
+/* 入力フィールド (角丸、余白、サイズ調整) */
 input {
   display: block;
   width: 100%;
   margin: 15px 0 5px 0;
   padding: 12px 10px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 8px; /* スムーズな角丸 */
   box-sizing: border-box;
 }
 
-/* 入力欄の入力文字 */
+/* プレースホルダー（入力欄のうすいヒント文字）をグレーに */
 input::placeholder {
   color: #888;
 }
 
-/* ログインボタン */
+/* ボタン (青色、丸薬型、立体感) */
 button {
   margin-top: 25px;
   margin-left: auto;
   margin-right: auto;
   display: block;
   padding: 10px 40px;
-  background-color: #3f51b5;
+  background-color: #3f51b5; /* 新規登録と同じ青色 */
   color: white;
   border: none;
-  border-bottom: 5px solid #283593;
-  border-radius: 50px;
+  border-bottom: 5px solid #283593; /* 立体感を出すための下部ボーダー */
+  border-radius: 50px; /* 完全な角丸（丸薬型） */
   cursor: pointer;
   width: auto;
   font-weight: bold;
   font-size: 14px;
 }
 
-/* =========================================
-   エラーテキスト
-   ========================================= */
-/* バリデーションエラー用 */
+/* エラーテキスト */
 .error-text {
   color: #ff4d4f;
   font-size: 12px;
   margin: 0 0 10px 5px;
   text-align: left;
 }
-
-/* エラー用*/
 .text-center {
   text-align: center;
 }

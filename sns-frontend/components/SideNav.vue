@@ -1,6 +1,5 @@
 <template>
   <div class="side-nav">
-
     <div class="logo-area">
       <img src="/logo.png" alt="Logo" class="logo">
     </div>
@@ -9,7 +8,6 @@
       <div class="menu-item" @click="$router.push('/')">
         <img src="/home.png" alt="Home" class="icon" /> <span>ホーム</span>
       </div>
-
       <div class="menu-item" @click="logout">
         <img src="/logout.png" alt="Logout" class="icon" /> <span>ログアウト</span>
       </div>
@@ -17,7 +15,6 @@
 
     <div class="post-area">
       <p class="section-title">シェア</p>
-
       <textarea v-model="content" placeholder="今の気持ちをシェアしよう" maxlength="120"></textarea>
 
       <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
@@ -30,57 +27,48 @@
 </template>
 
 <script>
-// Firebaseのプラグインを読み込み（ログアウト処理で使用）
 import firebase from '~/plugins/firebase'
 
 export default {
   data() {
     return {
-      content: '',         // 入力中の投稿内容
-      errorMessage: '',    // エラーメッセージを入れる箱
-      currentUserId: null  // 現在ログインしているユーザーのID
+      content: '',
+      errorMessage: '',
+      currentUserId: null
     }
   },
-  // コンポーネントが画面に表示された時に実行
   mounted() {
-    // ローカルストレージからログイン中のユーザーIDを取得
     this.currentUserId = localStorage.getItem('user_id')
   },
-
   methods: {
-    // --- ログアウト処理 ---
+    goToProfile() {
+      if (this.currentUserId) {
+        this.$router.push(`/users/${this.currentUserId}`)
+      } else {
+        alert('ログイン情報が見つかりません。')
+      }
+    },
     async logout() {
-      // 誤操作防止の確認ダイアログ
       if (!confirm('ログアウトしてもよろしいですか？')) {
         return
       }
       try {
-        // Firebase側のログアウト処理を実行
         await firebase.auth().signOut()
-        // ローカルストレージに保存していたユーザー情報を削除
         localStorage.removeItem('user_id')
-        localStorage.removeItem('user_name')
-
-        // ログイン画面へ遷移
         this.$router.push('/login')
       } catch (error) {
         console.error('ログアウトエラー:', error)
         alert('ログアウトに失敗しました')
       }
     },
-
-    // --- 新規投稿（シェア）処理 ---
     async createPost() {
-      // ボタンを押すたびに過去のエラーメッセージをリセット
       this.errorMessage = ''
 
-      // フロントエンドの入力チェック（空のまま送信するのを防ぐ）
       if (!this.content) {
         this.errorMessage = '投稿内容を入力してください'
         return
       }
 
-      // ログイン情報の確認
       const userId = localStorage.getItem('user_id')
       if (!userId) {
         this.errorMessage = 'ログイン情報が見つかりません。再度ログインしてください。'
@@ -89,22 +77,17 @@ export default {
       }
 
       try {
-        // LaravelのAPIへ新規投稿リクエストを送信
         await this.$axios.post('/posts', {
           user_id: userId,
           content: this.content
         })
 
-        // 成功したら入力欄を空
         this.content = ''
         alert('シェアしました！')
 
-        // 親コンポーネント(index.vueなど)に「投稿完了」を知らせ、タイムラインを更新
         this.$emit('post-created')
-
       } catch (error) {
         console.error('投稿エラー:', error)
-        // Laravel側のバリデーションエラーを受け取って画面に表示する処理
         if (error.response && error.response.status === 422) {
           const backendErrors = error.response.data.errors
           if (backendErrors.content) {
@@ -122,24 +105,19 @@ export default {
 </script>
 
 <style scoped>
-/* =========================================
-   サイドナビ全体のレイアウト
-   ========================================= */
-/* サイドナビ全体 */
+/* ★修正：途切れてしまうボーダーを削除し、パディングを調整 */
 .side-nav {
   padding: 20px 30px;
-  height: auto;
+  height: auto; /* height: 100vh から auto に変更 */
   width: 280px;
   box-sizing: border-box;
+  /* border-right: 1px solid #fff; ★これを削除 */
 }
 
-/* =========================================
-   ロゴとメニューのスタイル
-   ========================================= */
-/* ロゴ画像 */
+/* ★修正：ロゴを白く反転 */
 .logo {
   width: 120px;
-  margin-bottom: 40px;
+  margin-bottom: 40px; /* 余白を広めに */
   filter: brightness(0) invert(1);
 }
 
@@ -147,45 +125,40 @@ export default {
   margin-bottom: 40px;
 }
 
-/* 各メニュー項目 */
+/* ★修正：メニューの文字色とアイコンの白化 */
 .menu-item {
   display: flex;
   align-items: center;
   margin-bottom: 25px;
   cursor: pointer;
-  color: white;
+  color: white; /* 文字を白に */
   font-weight: bold;
   font-size: 16px;
 }
-
-/* メニューアイコン */
 .icon {
   width: 25px;
   margin-right: 15px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* 黒いアイコンを白に */
 }
 
-/* =========================================
-   シェア（新規投稿）エリアのスタイル
-   ========================================= */
 .post-area {
   margin-top: 30px;
 }
 
-/* 見出し */
+/* ★追加：見出しのスタイル */
 .section-title {
   color: white;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-/* 投稿用のテキストエリア */
+/* ★修正：テキストエリアの背景を透明にして白枠に */
 textarea {
   width: 100%;
   height: 120px;
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
+  background-color: transparent; /* 背景をなくす */
+  color: white; /* 入力文字を白に */
+  border: 1px solid white; /* 白い枠線 */
   border-radius: 10px;
   padding: 10px;
   resize: none;
@@ -193,29 +166,24 @@ textarea {
   box-sizing: border-box;
   font-family: inherit;
 }
-
-/* テキストエリアの入力文字*/
 textarea::placeholder {
-  color: #888;
+  color: #888; /* プレースホルダーは見やすいグレーに */
 }
 
-/* シェアボタン */
+/* ★修正：ボタンの色、形、右寄せ配置 */
 .share-btn {
-  background-color: #5c38ff;
+  background-color: #5c38ff; /* 画像に近い紫色 */
   color: white;
   border: none;
   padding: 10px 30px;
-  border-radius: 50px;
+  border-radius: 50px; /* 丸薬型 */
   cursor: pointer;
   display: block;
-  margin-left: auto; /* display: block; と組み合わせて右寄せ */
+  margin-left: auto; /* 右に寄せるための魔法の記述 */
   font-weight: bold;
   font-size: 14px;
 }
 
-/* =========================================
-   エラーメッセージのスタイル
-   ========================================= */
 .error-text {
   color: #ff4d4f;
   font-size: 14px;
