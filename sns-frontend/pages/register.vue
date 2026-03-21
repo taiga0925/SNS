@@ -1,7 +1,9 @@
 <template>
   <div>
     <AuthHeader />
+
     <div class="auth-container">
+
       <div class="auth-box">
         <h2>新規登録</h2>
 
@@ -23,6 +25,7 @@
 </template>
 
 <script>
+// Firebaseプラグインとヘッダーコンポーネントの読み込み
 import firebase from '~/plugins/firebase'
 import AuthHeader from '~/components/AuthHeader.vue'
 
@@ -32,9 +35,10 @@ export default {
   },
   data() {
     return {
-      name: '',
-      email: '',
-      password: '',
+      name: '',       // 入力されたユーザーネーム
+      email: '',      // 入力されたメールアドレス
+      password: '',   // 入力されたパスワード
+      // 各入力欄および全体のエラーメッセージを管理
       errors: {
         name: '',
         email: '',
@@ -44,22 +48,26 @@ export default {
     }
   },
   methods: {
+    // --- 新規登録処理 ---
     async register() {
-      // 1. まず前回の古いエラーメッセージを全てリセットする
+      // 古いエラーメッセージを全てリセット（初期化）
       this.errors = { name: '', email: '', password: '', general: '' }
-      let hasError = false // エラーがあるかどうかの目印
+      let hasError = false // エラーの有無を判定するためのフラグ
 
-      // 2. ユーザーネームのバリデーション（必須、20文字以内）
+      // フロントエンドでのユーザーネームのバリデーション
       if (!this.name) {
         this.errors.name = 'ユーザーネームを入力してください'
         hasError = true
       } else if (this.name.length > 20) {
+        // 20文字以内
         this.errors.name = 'ユーザーネームは20文字以内で入力してください'
         hasError = true
       }
 
-      // 3. メールアドレスのバリデーション（必須、メール形式）
+      // フロントエンドでのメールアドレスのバリデーション
+      // メールアドレスが正しい形式（○○@○○.○○）になっているかを確認
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
       if (!this.email) {
         this.errors.email = 'メールアドレスを入力してください'
         hasError = true
@@ -68,35 +76,37 @@ export default {
         hasError = true
       }
 
-      // 4. パスワードのバリデーション（必須、6文字以上）
+      // フロントエンドでのパスワードのバリデーション
       if (!this.password) {
         this.errors.password = 'パスワードを入力してください'
         hasError = true
       } else if (this.password.length < 6) {
+        // セキュリティのため、最低6文字以上を要求
         this.errors.password = 'パスワードは6文字以上で入力してください'
         hasError = true
       }
 
-      // 1つでもエラーがあればストップ
+      // 入力エラーがあれば、ここで処理をストップ
       if (hasError) return
 
       try {
-        // 5. Firebaseでユーザー作成
+        // Firebase Authentication を使って、新しいユーザーアカウントを作成
         await firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
 
-        // 6. LaravelのDBにユーザー情報を保存
+        // Firebaseでの作成が成功したら、自作のLaravel APIにもユーザー情報を送信しDBに保存
         await this.$axios.post('/register', {
           name: this.name,
           email: this.email,
-          password: this.password,
+          password: this.password, // Laravel側でハッシュ化して保存
         })
 
-        // 登録成功したらログイン画面へ
+        // 登録がすべて成功したらアラートを出し、ログイン画面へ遷移
         alert('登録が完了しました')
         this.$router.push('/login')
 
       } catch (error) {
         console.error(error)
+        // Firebaseで「すでに登録されているメールアドレス」と弾かれた場合や、通信エラーの場合のメッセージ
         this.errors.general = '登録に失敗しました。別のメールアドレスをお試しください。'
       }
     }
@@ -104,9 +114,12 @@ export default {
 }
 </script>
 
-
-
 <style scoped>
+/* =========================================
+   子コンポーネント(AuthHeader)のスタイル上書き
+   ========================================= */
+/* ::v-deep を使うことで、scoped (このファイル限定) の制限を越えて、
+   子コンポーネントのクラスに対してスタイルを強制的に適用 */
 ::v-deep .header-links a {
   color: white !important;
 }
@@ -114,7 +127,10 @@ export default {
   filter: brightness(0) invert(1);
 }
 
-/* 全体の背景  */
+/* =========================================
+   全体のレイアウト
+   ========================================= */
+/* 画面全体 */
 .auth-container {
   display: flex;
   justify-content: center;
@@ -124,7 +140,10 @@ export default {
   font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* 認証ボックス  */
+/* =========================================
+   新規登録ボックス
+   ========================================= */
+/* メインボックス */
 .auth-box {
   background: white;
   padding: 50px 40px;
@@ -134,12 +153,16 @@ export default {
   box-shadow: none;
 }
 
+/* タイトル */
 .auth-box h2 {
   font-weight: bold;
   margin-bottom: 30px;
 }
 
-/* 入力 */
+/* =========================================
+   入力フィールド・ボタン
+   ========================================= */
+/* 各入力欄 */
 input {
   display: block;
   width: 100%;
@@ -150,11 +173,12 @@ input {
   box-sizing: border-box;
 }
 
+/* 入力前の入力文字 */
 input::placeholder {
   color: #888;
 }
 
-/* ボタンのスタイル */
+/* 登録ボタン  */
 button {
   margin-top: 25px;
   margin-left: auto;
@@ -165,20 +189,25 @@ button {
   color: white;
   border: none;
   border-bottom: 5px solid #283593;
-  border-radius: 50px; 
+  border-radius: 50px;
   cursor: pointer;
   width: auto;
   font-weight: bold;
   font-size: 14px;
 }
 
-/* エラーテキストのスタイル */
+/* =========================================
+   エラーテキスト
+   ========================================= */
+/* 入力欄赤文字エラー */
 .error-text {
   color: #ff4d4f;
   font-size: 12px;
   margin: 0 0 10px 5px;
   text-align: left;
 }
+
+/* 全体エラーメッセージ用 */
 .text-center {
   text-align: center;
 }

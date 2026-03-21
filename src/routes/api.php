@@ -31,7 +31,7 @@ Route::delete('/posts/{id}', [PostController::class, 'destroy']); // 削除
 
 // いいね関連
 Route::post('/likes', [LikeController::class, 'store']);
-Route::delete('/likes', [LikeController::class, 'destroy']); // ID指定なしで削除する場合の工夫が必要ですが一旦定義
+Route::delete('/likes', [LikeController::class, 'destroy']); 
 
 // コメント関連
 Route::post('/comments', [CommentController::class, 'store']);
