@@ -90,7 +90,7 @@ npm install
 npm run dev
 ```
 
-注意事項（Firebase認証について）
+### 注意事項（Firebase認証について）
 
 フロントエンドとFirebaseを連携させるため、plugins/firebase.js （またはフロントエンド側の .env）にご自身のFirebaseプロジェクトのAPIキー等の設定情報を記述してください。
 
@@ -107,5 +107,7 @@ Firebaseの仕様上、すでに登録済みのメールアドレスで「新規
 
 URL
 開発環境（フロントエンド）: http://localhost:3000/
+
 APIベース（バックエンド）: http://localhost/
+
 phpMyAdmin: http://localhost:8080/
