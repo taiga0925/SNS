@@ -65,7 +65,7 @@ DB_PASSWORD=laravel_pass
 php artisan key:generate
 ```
 
-# 【重要】ストレージ等の書き込み権限を付与（500エラー防止）
+# ストレージ等の書き込み権限を付与（500エラー防止）
 ```bash
 chmod -R 777 storage bootstrap/cache
 ```
