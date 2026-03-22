@@ -60,9 +60,10 @@ php artisan db:seed
 4. フロントエンド（Nuxt.js）の設定
 フロントエンド側のディレクトリへ移動し、起動します。
 
-Bash
 cd ../frontend
+
 npm install
+
 npm run dev
 
 データベース設計（ER図）
