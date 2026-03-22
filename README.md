@@ -39,11 +39,17 @@ cp .env.example .env
 
 Plaintext
 DB_CONNECTION=mysql
+
 DB_HOST=mysql
+
 DB_PORT=3306
+
 DB_DATABASE=laravel_db
+
 DB_USERNAME=laravel_user
+
 DB_PASSWORD=laravel_pass
+
 ※その他、Firebaseとの連携に必要な環境変数も必要に応じて追記してください。
 
 3. キー生成・DBセットアップ
