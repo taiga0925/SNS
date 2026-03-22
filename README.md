@@ -101,8 +101,11 @@ Firebaseの仕様上、すでに登録済みのメールアドレスで「新規
 <img width="591" height="691" alt="ER drawio" src="https://github.com/user-attachments/assets/1075ba0d-f5c4-462c-9ff8-56d769633ef5" />
 
 ・users: ユーザー情報
+
 ・posts: 投稿内容
+
 ・comments: 投稿に対するコメント
+
 ・likes: 投稿に対する「いいね」
 
 URL
