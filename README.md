@@ -46,15 +46,19 @@ composer install
 cp .env.example .env
 ```
 .env ファイルを開き、以下のDB接続情報を設定してください。
-※ DB_HOST は 127.0.0.1 ではなく mysql を指定してください。
 
-Plaintext
 DB_CONNECTION=mysql
+
 DB_HOST=mysql
+
 DB_PORT=3306
+
 DB_DATABASE=laravel_db
+
 DB_USERNAME=laravel_user
+
 DB_PASSWORD=laravel_pass
+
 ※その他、Firebaseとの連携に必要な環境変数も必要に応じて追記してください。
 
 # 3. キー生成・DBセットアップと権限付与
